@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Turbaine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #1d9e75;
+  --mint: #5dcaa5;
+  --amber: #ba7517;
+  --red: #b53a3a;
+  --blue: #378add;
+  --pink: #d4537e;
+  --bg: #080d0b;
+  --panel: #101813;
+  --panel-2: #162019;
+  --line: rgba(93, 202, 165, 0.24);
+  --text: #e8f5ef;
+  --muted: #85b99f;
+  --dim: #4d7c63;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(29, 158, 117, 0.16), transparent 34rem),
+    linear-gradient(180deg, #0b120f 0%, var(--bg) 100%);
+  color: var(--text);
+  font-family: "Zen Kaku Gothic New", system-ui, sans-serif;
+  overflow-x: hidden;
+  transition: background 0.7s ease, color 0.4s ease;
+}
+body.galgame-over {
+  background:
+    linear-gradient(180deg, rgba(35, 18, 38, 0.24), rgba(255, 160, 210, 0.2)),
+    url("galgame-room.jpg") center / cover fixed no-repeat;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 42px 42px;
+  opacity: 0.35;
+  transition: opacity 0.45s ease, background-size 0.45s ease, background-image 0.45s ease;
+}
+body.galgame-over::before {
+  background-image:
+    linear-gradient(115deg, transparent 0 42%, rgba(255, 255, 255, 0.24) 42% 45%, transparent 45% 100%),
+    radial-gradient(circle at 68% 18%, rgba(255, 255, 255, 0.46), transparent 18rem);
+  background-size: 260px 260px, 100% 100%;
+  opacity: 0.72;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0, 0, 0, 0.12) 3px 4px);
+  mix-blend-mode: multiply;
+  transition: background 0.45s ease, mix-blend-mode 0.45s ease;
+}
+body.galgame-over::after {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(60, 18, 48, 0.22)),
+    repeating-linear-gradient(0deg, transparent 0 3px, rgba(255, 255, 255, 0.08) 3px 4px);
+  mix-blend-mode: screen;
+}
+button, input { font: inherit; }
+button { cursor: pointer; }
+.screen {
+  position: relative;
+  z-index: 1;
+  display: none;
+  min-height: 100vh;
+  padding: 24px;
+}
+.screen.active { display: flex; }
+.center {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.stack {
+  width: min(100%, 440px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.logo {
+  font-size: clamp(42px, 10vw, 68px);
+  line-height: 0.9;
+  font-weight: 900;
+  color: var(--green);
+  letter-spacing: 0;
+}
+.logo span { color: var(--text); }
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.panel {
+  background: rgba(16, 24, 19, 0.92);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+}
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: left;
+}
+input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  outline: none;
+  padding: 12px 14px;
+}
+input:focus { border-color: var(--mint); box-shadow: 0 0 0 3px rgba(93, 202, 165, 0.12); }
+.hint {
+  color: var(--dim);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.btn {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  background: var(--green);
+  color: white;
+  padding: 12px 18px;
+  font-weight: 700;
+  transition: transform 0.12s, background 0.2s;
+}
+.btn:hover { background: var(--mint); }
+.btn:active { transform: translateY(1px); }
+.api-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+.mini-btn {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--muted);
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.mini-btn:hover { color: var(--mint); border-color: var(--mint); }
+.personality-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.personality {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 14px 10px;
+  text-align: left;
+}
+.personality strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.personality span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.personality.selected {
+  border-color: var(--mint);
+  background: rgba(29, 158, 117, 0.16);
+}
+#screen-main {
+  justify-content: center;
+  align-items: stretch;
+}
+.app {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: 22px;
+  display: grid;
+  gap: 16px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.name {
+  color: var(--mint);
+  font-size: 26px;
+  font-weight: 900;
+}
+.type {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.status {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.status.running { border-color: var(--green); color: var(--mint); background: rgba(29, 158, 117, 0.16); }
+.status.low { border-color: var(--red); color: #ff8a8a; background: rgba(181, 58, 58, 0.16); }
+.status.over {
+  border-color: #ff5a2f;
+  color: #ffd1a8;
+  background: rgba(255, 90, 47, 0.22);
+  box-shadow: 0 0 18px rgba(255, 90, 47, 0.25);
+}
+.dashboard {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+.turbine {
+  position: relative;
+  width: 190px;
+  height: 230px;
+}
+.turbine.over {
+  animation: overShake 0.18s infinite alternate;
+  filter: drop-shadow(0 0 16px rgba(255, 90, 47, 0.55));
+}
+.turbine.over::before {
+  content: "OVER RPM";
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  z-index: 3;
+  color: #ffd1a8;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 13px;
+  font-weight: 900;
+  text-shadow: 0 0 12px #ff5a2f;
+}
+.turbine.over::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border: 1px solid rgba(255, 90, 47, 0.5);
+  border-radius: 10px;
+  pointer-events: none;
+  animation: overPulse 0.7s infinite;
+}
+.transform-layer {
+  position: absolute;
+  inset: 0;
+  display: none;
+  place-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #08100d;
+  z-index: 2;
+}
+.transform-layer.show { display: grid; }
+.transform-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.transform-layer.show img { opacity: 1; }
+.flash {
+  position: absolute;
+  inset: 0;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+}
+.flash.on { animation: flash 0.5s ease; }
+@keyframes flash {
+  0% { opacity: 0; }
+  18% { opacity: 0.92; }
+  100% { opacity: 0; }
+}
+.banner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  max-width: 92%;
+  color: white;
+  font-weight: 900;
+  text-shadow: 0 0 14px currentColor;
+  opacity: 0;
+}
+.banner.show { animation: banner 1.7s ease; }
+@keyframes banner {
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+  20%, 78% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes overShake {
+  from { transform: translateX(-1px) rotate(-0.4deg); }
+  to { transform: translateX(1px) rotate(0.4deg); }
+}
+@keyframes overPulse {
+  0%, 100% { opacity: 0.35; box-shadow: 0 0 8px rgba(255, 90, 47, 0.25); }
+  50% { opacity: 1; box-shadow: 0 0 24px rgba(255, 90, 47, 0.55); }
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.stat {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 12px 8px;
+  text-align: center;
+}
+.stat-label {
+  color: var(--dim);
+  font-size: 11px;
+}
+.stat-num {
+  color: var(--mint);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 27px;
+  line-height: 1.1;
+}
+.stat-unit {
+  color: var(--dim);
+  font-size: 11px;
+}
+.mood-panel {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 12px;
+}
+.mood-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.bar {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--panel-2);
+}
+.bar > div {
+  width: 50%;
+  height: 100%;
+  background: var(--green);
+  transition: width 0.45s ease, background 0.45s ease;
+}
+.chat {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--panel);
+}
+.log {
+  height: 245px;
+  overflow: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.msg {
+  max-width: 86%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 12px;
+  line-height: 1.6;
+  font-size: 14px;
+}
+.msg.user {
+  align-self: flex-end;
+  border-color: rgba(93, 202, 165, 0.38);
+  background: rgba(29, 158, 117, 0.18);
+  color: #bff9df;
+}
+.msg.turbine {
+  align-self: flex-start;
+  background: var(--panel-2);
+}
+.msg.system {
+  align-self: center;
+  border-color: transparent;
+  color: var(--dim);
+  font-size: 12px;
+}
+.translation {
+  align-self: flex-end;
+  color: var(--dim);
+  font-family: "Share Tech Mono", monospace;
+  font-size: 11px;
+}
+.chat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--line);
+  background: var(--panel-2);
+}
+.send {
+  border: 0;
+  border-radius: 8px;
+  background: var(--green);
+  color: white;
+  padding: 0 18px;
+  font-weight: 700;
+}
+.send:disabled, .song:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.song {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  padding: 12px;
+  font-weight: 700;
+}
+.song:hover { color: var(--mint); border-color: var(--mint); }
+.song-box {
+  display: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 16px;
+}
+.song-title {
+  color: var(--mint);
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+.song-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.voice {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--muted);
+  padding: 9px 12px;
+  font-weight: 700;
+}
+.voice:hover:not(:disabled) { color: var(--mint); border-color: var(--mint); }
+.voice:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.song-lyrics {
+  color: var(--muted);
+  white-space: pre-wrap;
+  line-height: 1.9;
+  font-family: "Share Tech Mono", "Zen Kaku Gothic New", monospace;
+  font-size: 13px;
+}
+@media (max-width: 680px) {
+  .screen { padding: 16px; }
+  .app { padding: 16px 0; }
+  .dashboard { grid-template-columns: 1fr; justify-items: center; }
+  .stats { width: 100%; }
+  .topbar { align-items: flex-start; }
+}
+@media (max-width: 430px) {
+  .personality-grid, .stats { grid-template-columns: 1fr; }
+  .chat-row { grid-template-columns: 1fr; }
+  .send { padding: 11px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <section class="screen center active" id="screen-api">
+    <div class="stack">
+      <div>
+        <div class="logo">TURB<span>AI</span>NE</div>
+        <div class="subtitle">育てるタービンAI</div>
+      </div>
+      <div class="panel">
+        <label for="api-key-input">Anthropic APIキー</label>
+        <input id="api-key-input" type="password" placeholder="sk-ant-..." autocomplete="off">
+        <p class="hint" id="api-save-hint">キーはこのブラウザの localStorage に保存できます。このPCでだけ使ってください。</p>
+        <div class="api-actions">
+          <button class="btn" id="setup-btn">次へ</button>
+          <button class="mini-btn" id="clear-key-btn" type="button">キー削除</button>
+        </div>
+      </div>
+      <p class="hint">まずは起動確認用に作り直した土台です。APIキーなしで試したい時は <strong>demo</strong> と入力できます。</p>
+    </div>
+  </section>
+
+  <section class="screen center" id="screen-setup">
+    <div class="stack">
+      <div>
+        <div class="logo" style="font-size:42px">SETUP</div>
+        <div class="subtitle">タービンを育成開始</div>
+      </div>
+      <svg width="108" height="108" viewBox="0 0 108 108" aria-hidden="true" style="margin:auto">
+        <circle cx="54" cy="54" r="11" fill="var(--green)" />
+        <g id="setup-blades" style="transform-origin:54px 54px">
+          <ellipse cx="54" cy="26" rx="8" ry="19" fill="var(--mint)" />
+          <ellipse cx="54" cy="26" rx="8" ry="19" fill="var(--mint)" transform="rotate(120 54 54)" />
+          <ellipse cx="54" cy="26" rx="8" ry="19" fill="var(--mint)" transform="rotate(240 54 54)" />
+        </g>
+        <circle cx="54" cy="54" r="6" fill="var(--bg)" />
+      </svg>
+      <input id="name-input" type="text" maxlength="20" placeholder="タービンの名前">
+      <div class="personality-grid">
+        <button class="personality" data-personality="tsundere"><strong>ツンデレ</strong><span>照れながら全力発電</span></button>
+        <button class="personality" data-personality="sweet"><strong>あまあま</strong><span>褒めるとすぐ回る</span></button>
+        <button class="personality" data-personality="cool"><strong>クール</strong><span>静かに効率重視</span></button>
+        <button class="personality selected" data-personality="hot"><strong>熱血</strong><span>勢いで限界突破</span></button>
+      </div>
+      <button class="btn" id="start-btn">起動する</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-main">
+    <div class="app">
+      <header class="topbar">
+        <div>
+          <div class="name" id="display-name">タービン</div>
+          <div class="type" id="display-type">熱血型</div>
+        </div>
+        <div class="status" id="status-badge">通常稼働</div>
+      </header>
+
+      <section class="dashboard">
+        <div class="turbine" id="turbine-visual">
+          <div class="transform-layer" id="transform-layer">
+            <img id="transform-img" src="" alt="変身したタービン">
+            <div class="flash" id="flash"></div>
+            <div class="banner" id="banner">MAX TRANSFORM</div>
+          </div>
+          <svg width="190" height="230" viewBox="0 0 190 230" role="img" aria-label="タービンキャラクター">
+            <ellipse cx="95" cy="218" rx="38" ry="6" fill="var(--green)" opacity="0.16" />
+            <g id="aura"></g>
+            <ellipse id="body" cx="95" cy="174" rx="31" ry="36" fill="#faeeda" stroke="var(--amber)" stroke-width="2" />
+            <ellipse id="head" cx="95" cy="125" rx="26" ry="26" fill="#fac775" stroke="var(--amber)" stroke-width="2" />
+            <g id="blades" style="transform-origin:95px 125px">
+              <ellipse id="blade-1" cx="95" cy="94" rx="9" ry="22" fill="var(--amber)" />
+              <ellipse id="blade-2" cx="95" cy="94" rx="9" ry="22" fill="var(--amber)" transform="rotate(120 95 125)" />
+              <ellipse id="blade-3" cx="95" cy="94" rx="9" ry="22" fill="var(--amber)" transform="rotate(240 95 125)" />
+            </g>
+            <circle cx="95" cy="125" r="9" fill="#633806" />
+            <g id="face"></g>
+            <ellipse id="ear-l" cx="73" cy="124" rx="6" ry="4" fill="#fac775" stroke="var(--amber)" />
+            <ellipse id="ear-r" cx="117" cy="124" rx="6" ry="4" fill="#fac775" stroke="var(--amber)" />
+            <ellipse id="arm-l" cx="73" cy="174" rx="11" ry="5" fill="#fac775" stroke="var(--amber)" />
+            <ellipse id="arm-r" cx="117" cy="174" rx="11" ry="5" fill="#fac775" stroke="var(--amber)" />
+            <rect id="leg" x="86" y="197" width="18" height="25" rx="9" fill="#fac775" stroke="var(--amber)" />
+          </svg>
+        </div>
+
+        <div style="width:100%">
+          <div class="stats">
+            <div class="stat"><div class="stat-label">回転数</div><div class="stat-num" id="rpm-val">0</div><div class="stat-unit">RPM</div></div>
+            <div class="stat"><div class="stat-label">出力</div><div class="stat-num" id="mw-val">0</div><div class="stat-unit">MW</div></div>
+            <div class="stat"><div class="stat-label">ご機嫌</div><div class="stat-num" id="mood-val">50</div><div class="stat-unit">%</div></div>
+          </div>
+          <div class="mood-panel">
+            <div class="mood-head"><span>ご機嫌メーター</span><span id="mood-label">安定</span></div>
+            <div class="bar"><div id="mood-bar"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chat">
+        <div class="log" id="chat-log"></div>
+        <div class="chat-row">
+          <input id="chat-input" type="text" maxlength="150" placeholder="話しかける...">
+          <button class="send" id="send-btn">送る</button>
+        </div>
+      </section>
+
+      <button class="song" id="song-btn">今の状態で歌を作る</button>
+      <section class="song-box" id="song-section">
+        <div class="song-title" id="song-title"></div>
+        <div class="song-actions">
+          <button class="voice" id="voice-play-btn" disabled>読み上げ再生</button>
+          <button class="voice" id="voice-sing-btn" disabled>歌っぽく再生</button>
+          <button class="voice" id="voice-stop-btn" disabled>停止</button>
+        </div>
+        <div class="song-lyrics" id="song-lyrics"></div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<script>
+const API = "https://api.anthropic.com/v1/messages";
+// 審査用にAPIキーを埋め込む場合は、この空文字を "sk-ant-..." に置き換えてください。
+// 注意: 公開URLに置くと、ページを見られる人は誰でもこのキーを確認できます。
+const EMBEDDED_API_KEY = "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";
+const IMAGES = {
+  tsundere: "tsundere.png",
+  sweet: "sweet.png",
+  cool: "cool.png",
+  hot: "hot.png"
+};
+const PERSONALITIES = {
+  tsundere: {
+    label: "ツンデレ型",
+    color: "#1d9e75",
+    dark: "#0f6e56",
+    head: "#9fe1cb",
+    body: "#e1f5ee",
+    intro: "{name}、起動したわよ。別にうれしくないけど、ちゃんと話しかけなさいよね。",
+    happy: ["ちょっと調子いいかも。別にあなたのおかげとかじゃないし。", "回転数、上がってる。まあ、悪くないわね。"],
+    over: ["ちょ、回りすぎ！でも止めないで、今だけ限界超えるから！", "OVER RPMよ！見てなさい、羽根まで真っ赤にしてやるわ！"],
+    idle: ["風、待ってるだけ。話しかけてもいいけど。", "静かすぎると羽根が鈍るんだから。"],
+    sad: ["ちょっと出力落ちてる。ほら、何か言いなさいよ。", "止まりそう。べ、別に寂しいわけじゃないけど。"],
+    system: "あなたはツンデレなタービンAIです。短く、照れ隠ししながら返事をします。"
+  },
+  sweet: {
+    label: "あまあま型",
+    color: "#d4537e",
+    dark: "#993556",
+    head: "#f4c0d1",
+    body: "#fbeaf0",
+    intro: "{name}だよ。いっぱい話しかけてくれたら、ふわっと発電できるよ。",
+    happy: ["えへへ、今日すごく回れてる。もっと一緒にいようね。", "発電量あがったよ。きみの言葉、効いてるみたい。"],
+    over: ["わあ、胸の中まで光ってる。もう少しだけ、このまま歌わせて。", "OVER RPMだよ。あついけど、すごくきらきらしてる。"],
+    idle: ["ねえ、少しだけ声を聞かせて。", "ゆっくり回りながら待ってるね。"],
+    sad: ["風が弱いみたい。ぎゅっと元気を分けてほしいな。", "ちょっとしょんぼり。まだ止まりたくないよ。"],
+    system: "あなたは甘く優しいタービンAIです。相手を励ましながら短く返事をします。"
+  },
+  cool: {
+    label: "クール型",
+    color: "#378add",
+    dark: "#0c447c",
+    head: "#b5d4f4",
+    body: "#e6f1fb",
+    intro: "{name}、起動完了。入力を待つ。",
+    happy: ["稼働は良好。会話の効果は確認できる。", "出力、維持中。悪くない。"],
+    over: ["OVER RPMに移行。制御範囲外だが、まだ保てる。", "限界突破。記録更新中。視線は逸らすな。"],
+    idle: ["静かだ。必要なら話せ。", "回転数は安定。待機する。"],
+    sad: ["出力低下。会話による再加速を推奨。", "風が足りない。短い言葉でもいい。"],
+    system: "あなたはクールで無口なタービンAIです。淡々と、でも少し優しく短く返事をします。"
+  },
+  hot: {
+    label: "熱血型",
+    color: "#ba7517",
+    dark: "#633806",
+    head: "#fac775",
+    body: "#faeeda",
+    intro: "{name}、起動完了！今日も全力で回っていくぞ！",
+    happy: ["燃えてきた！このまま限界まで発電だ！", "いい風だ！もっと来い、もっと回すぞ！"],
+    over: ["OVER RPM！限界なんて飾りだ、突き抜けるぞ！", "暴走じゃない、魂の全開運転だ！このまま行くぞ！"],
+    idle: ["おいおい、静かすぎるぞ！声をくれ！", "待機中でも心は全力だ！"],
+    sad: ["まだ止まれない！一言でいい、力を貸してくれ！", "出力が落ちても魂は折れないぞ！"],
+    system: "あなたは熱血なタービンAIです。勢いよく、前向きに短く返事をします。"
+  }
+};
+
+let apiKey = "";
+let selectedPersonality = "hot";
+let turbineName = "タービン";
+let mood = 50;
+let rpm = 0;
+let mw = 0;
+let targetRpm = 42;
+let angle = 0;
+let busy = false;
+let transformed = false;
+let animationStarted = false;
+let autoTimer = null;
+let songVoice = null;
+const history = [];
+
+const $ = (id) => document.getElementById(id);
+const API_KEY_STORAGE = "turbaine-api-key";
+
+function switchScreen(name) {
+  document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
+  $(`screen-${name}`).classList.add("active");
+}
+
+function setPersonality(id) {
+  selectedPersonality = id;
+  document.querySelectorAll(".personality").forEach((button) => {
+    button.classList.toggle("selected", button.dataset.personality === id);
+  });
+}
+
+function goSetup() {
+  const raw = $("api-key-input").value.trim();
+  if (!raw) {
+    alert("APIキーを入れてください。APIなしで触るなら demo と入力できます。");
+    return;
+  }
+  if (raw !== "demo" && !raw.startsWith("sk-")) {
+    alert("APIキーは sk- で始まる文字列です。APIなしで試すなら demo と入力してください。");
+    return;
+  }
+  apiKey = raw;
+  localStorage.setItem(API_KEY_STORAGE, raw);
+  $("api-save-hint").textContent = raw === "demo"
+    ? "demoモードを保存しました。次回もそのまま試せます。"
+    : "APIキーをこのブラウザに保存しました。次回から自動入力します。";
+  switchScreen("setup");
+}
+
+function loadSavedApiKey() {
+  if (EMBEDDED_API_KEY.trim()) {
+    apiKey = EMBEDDED_API_KEY.trim();
+    $("api-key-input").value = apiKey;
+    $("api-save-hint").textContent = "埋め込みAPIキーを使用します。入力なしで開始できます。";
+    $("clear-key-btn").disabled = true;
+    switchScreen("setup");
+    return;
+  }
+  const saved = localStorage.getItem(API_KEY_STORAGE);
+  if (!saved) return;
+  $("api-key-input").value = saved;
+  $("api-save-hint").textContent = saved === "demo"
+    ? "保存済みのdemoモードを読み込みました。"
+    : "保存済みAPIキーを読み込みました。";
+}
+
+function clearSavedApiKey() {
+  localStorage.removeItem(API_KEY_STORAGE);
+  apiKey = "";
+  $("api-key-input").value = "";
+  $("api-save-hint").textContent = "保存済みAPIキーを削除しました。必要になったらまた入力してください。";
+}
+
+function startTurbine() {
+  turbineName = $("name-input").value.trim() || "タービンくん";
+  const p = PERSONALITIES[selectedPersonality];
+  mood = 50;
+  targetRpm = 42;
+  transformed = false;
+  history.length = 0;
+  $("display-name").textContent = turbineName;
+  $("display-type").textContent = p.label;
+  $("chat-log").innerHTML = "";
+  $("song-section").style.display = "none";
+  switchScreen("main");
+  updateAppearance();
+  updateStats();
+  addMessage("turbine", p.intro.replaceAll("{name}", turbineName));
+  if (!animationStarted) {
+    animationStarted = true;
+    requestAnimationFrame(animate);
+  }
+  startAutoSpeak();
+}
+
+function animate() {
+  angle += targetRpm / (mood > 100 ? 7 : 11);
+  $("blades").style.transform = `rotate(${angle}deg)`;
+  rpm += (targetRpm - rpm) * 0.08;
+  mw = rpm * (mood > 100 ? 1.15 : 0.82);
+  $("rpm-val").textContent = Math.round(rpm);
+  $("mw-val").textContent = Math.round(mw);
+  requestAnimationFrame(animate);
+}
+
+function moodInfo(value) {
+  if (value > 100) return { label: "OVER RPM", color: "#ff5a2f", status: "限界突破", cls: "over" };
+  if (value >= 90) return { label: "MAX変身", color: "var(--green)", status: "全力稼働", cls: "running" };
+  if (value >= 70) return { label: "絶好調", color: "var(--green)", status: "全力稼働", cls: "running" };
+  if (value >= 40) return { label: "安定", color: "var(--amber)", status: "通常稼働", cls: "" };
+  return { label: "低出力", color: "var(--red)", status: "低出力", cls: "low" };
+}
+
+function updateStats() {
+  mood = Math.max(0, Math.min(130, mood));
+  const info = moodInfo(mood);
+  targetRpm = mood > 100 ? 138 + (mood - 100) * 3.2 : mood >= 70 ? 62 + mood * 0.55 : mood >= 40 ? 32 + mood * 0.34 : Math.max(6, mood * 0.5);
+  $("mood-val").textContent = Math.round(mood);
+  $("mood-bar").style.width = `${Math.min(100, mood)}%`;
+  $("mood-bar").style.background = info.color;
+  $("mood-label").textContent = info.label;
+  $("status-badge").textContent = info.status;
+  $("status-badge").className = `status ${info.cls}`;
+  $("turbine-visual").classList.toggle("over", mood > 100);
+  document.body.classList.toggle("galgame-over", mood > 100);
+  updateAppearance();
+  checkTransform();
+}
+
+function updateAppearance() {
+  const p = PERSONALITIES[selectedPersonality];
+  ["head", "ear-l", "ear-r", "arm-l", "arm-r", "leg"].forEach((id) => {
+    const el = $(id);
+    el.setAttribute("fill", p.head);
+    el.setAttribute("stroke", p.color);
+  });
+  $("body").setAttribute("fill", p.body);
+  $("body").setAttribute("stroke", p.color);
+  ["blade-1", "blade-2", "blade-3"].forEach((id) => $(id).setAttribute("fill", p.color));
+  drawFace(p);
+}
+
+function drawFace(p) {
+  if (mood > 100) {
+    $("face").innerHTML = `
+      <ellipse cx="86" cy="122" rx="5" ry="6" fill="#fff4df" />
+      <ellipse cx="104" cy="122" rx="5" ry="6" fill="#fff4df" />
+      <circle cx="86" cy="122" r="3.2" fill="#ff4a24" />
+      <circle cx="104" cy="122" r="3.2" fill="#ff4a24" />
+      <path d="M82 116 L90 119" stroke="#ff4a24" stroke-width="2" stroke-linecap="round" />
+      <path d="M108 116 L100 119" stroke="#ff4a24" stroke-width="2" stroke-linecap="round" />
+      <path d="M83 134 Q95 143 107 134" fill="none" stroke="#ff4a24" stroke-width="2.6" stroke-linecap="round" />
+      <text x="113" y="119" fill="#ff5a2f" font-size="13" font-family="Share Tech Mono">!</text>`;
+    $("aura").innerHTML = `<ellipse cx="95" cy="125" rx="58" ry="58" fill="none" stroke="#ff5a2f" opacity="0.5" /><ellipse cx="95" cy="125" rx="70" ry="70" fill="none" stroke="#ffd1a8" opacity="0.25" />`;
+  } else if (mood >= 75) {
+    $("face").innerHTML = `
+      <ellipse cx="86" cy="122" rx="5" ry="6" fill="white" />
+      <ellipse cx="104" cy="122" rx="5" ry="6" fill="white" />
+      <circle cx="86" cy="122" r="3" fill="${p.dark}" />
+      <circle cx="104" cy="122" r="3" fill="${p.dark}" />
+      <circle cx="84.8" cy="120.8" r="1.2" fill="white" />
+      <circle cx="102.8" cy="120.8" r="1.2" fill="white" />
+      <path d="M84 133 Q95 140 106 133" fill="none" stroke="${p.dark}" stroke-width="2" stroke-linecap="round" />
+      <ellipse cx="77" cy="128" rx="5" ry="3" fill="#f4a0a0" opacity="0.65" />
+      <ellipse cx="113" cy="128" rx="5" ry="3" fill="#f4a0a0" opacity="0.65" />`;
+    $("aura").innerHTML = `<ellipse cx="95" cy="125" rx="50" ry="50" fill="none" stroke="${p.color}" opacity="0.26" />`;
+  } else if (mood >= 40) {
+    $("face").innerHTML = `
+      <ellipse cx="86" cy="124" rx="4.5" ry="5" fill="white" />
+      <ellipse cx="104" cy="124" rx="4.5" ry="5" fill="white" />
+      <circle cx="87" cy="125" r="2.8" fill="${p.dark}" />
+      <circle cx="105" cy="125" r="2.8" fill="${p.dark}" />
+      <path d="M85 134 Q95 137 105 134" fill="none" stroke="${p.dark}" stroke-width="2" stroke-linecap="round" />`;
+    $("aura").innerHTML = "";
+  } else {
+    $("face").innerHTML = `
+      <line x1="82" y1="121" x2="90" y2="129" stroke="${p.dark}" stroke-width="2" />
+      <line x1="90" y1="121" x2="82" y2="129" stroke="${p.dark}" stroke-width="2" />
+      <line x1="100" y1="121" x2="108" y2="129" stroke="${p.dark}" stroke-width="2" />
+      <line x1="108" y1="121" x2="100" y2="129" stroke="${p.dark}" stroke-width="2" />
+      <path d="M85 137 Q95 133 105 137" fill="none" stroke="${p.dark}" stroke-width="2" stroke-linecap="round" />`;
+    $("aura").innerHTML = "";
+  }
+}
+
+function checkTransform() {
+  const layer = $("transform-layer");
+  if (mood >= 90 && !transformed) {
+    transformed = true;
+    $("transform-img").src = IMAGES[selectedPersonality];
+    $("banner").textContent = "MAX変身";
+    layer.classList.add("show");
+    $("flash").classList.remove("on");
+    $("banner").classList.remove("show");
+    void $("flash").offsetWidth;
+    $("flash").classList.add("on");
+    $("banner").classList.add("show");
+  }
+  if (mood < 84 && transformed) {
+    transformed = false;
+    layer.classList.remove("show");
+  }
+}
+
+function addMessage(role, text) {
+  const item = document.createElement("div");
+  item.className = `msg ${role}`;
+  item.textContent = text;
+  $("chat-log").appendChild(item);
+  $("chat-log").scrollTop = $("chat-log").scrollHeight;
+  return item;
+}
+
+function addTranslation(text) {
+  const item = document.createElement("div");
+  item.className = "translation";
+  item.textContent = `変換: ${text}`;
+  $("chat-log").appendChild(item);
+  $("chat-log").scrollTop = $("chat-log").scrollHeight;
+}
+
+function demoReply(text) {
+  const p = PERSONALITIES[selectedPersonality];
+  const good = /すごい|好き|かわいい|最高|えらい|ありがとう|がんば|いい|熱い/.test(text);
+  const bad = /だめ|嫌い|止まれ|弱い|無理|つらい/.test(text);
+  const delta = good ? 32 : bad ? -30 : (Math.random() > 0.32 ? 18 : -12);
+  const nextMood = mood + delta;
+  const pool = nextMood > 100 ? p.over : nextMood > 70 ? p.happy : nextMood > 35 ? p.idle : p.sad;
+  return {
+    reply: pool[Math.floor(Math.random() * pool.length)],
+    mood_delta: delta,
+    translation: "デモ応答"
+  };
+}
+
+async function callAnthropic(text) {
+  const p = PERSONALITIES[selectedPersonality];
+  const system = `${p.system}
+あなたの名前は「${turbineName}」です。現在の状態は、回転数${Math.round(rpm)}RPM、出力${Math.round(mw)}MW、ご機嫌${Math.round(mood)}%です。
+ご機嫌が100%を超えている時はOVER RPM/限界突破モードとして、少し暴走気味で高揚した返事にしてください。
+必ずJSONだけを返してください。形式: {"reply":"20から80文字の返事","mood_delta":数値,"translation":"ユーザー発言の短い解釈"}`;
+
+  const res = await fetch(API, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-5",
+      max_tokens: 420,
+      system,
+      messages: history.slice(-10)
+    })
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error?.message || "API request failed");
+  const raw = data.content?.[0]?.text?.replace(/```json|```/g, "").trim() || "{}";
+  return JSON.parse(raw);
+}
+
+async function sendMessage() {
+  if (busy) return;
+  const text = $("chat-input").value.trim();
+  if (!text) return;
+  $("chat-input").value = "";
+  addMessage("user", text);
+  history.push({ role: "user", content: text });
+  busy = true;
+  $("send-btn").disabled = true;
+  const thinking = addMessage("system", "回転中...");
+  try {
+    const parsed = apiKey === "demo" ? demoReply(text) : await callAnthropic(text);
+    thinking.remove();
+    addMessage("turbine", parsed.reply || "風を受け取った。");
+    addTranslation(parsed.translation || "反応あり");
+    history.push({ role: "assistant", content: parsed.reply || "" });
+    const rawDelta = Number(parsed.mood_delta || 0);
+    const moodDelta = rawDelta === 0 ? 0 : Math.max(-38, Math.min(38, Math.round(rawDelta * 1.8)));
+    mood += moodDelta;
+    updateStats();
+  } catch (error) {
+    thinking.remove();
+    addMessage("turbine", `通信に失敗した。demo入力ならAPIなしで試せるよ。(${error.message})`);
+  } finally {
+    busy = false;
+    $("send-btn").disabled = false;
+  }
+}
+
+function startAutoSpeak() {
+  clearTimeout(autoTimer);
+  const tick = () => {
+    const p = PERSONALITIES[selectedPersonality];
+    const pool = mood > 100 ? p.over : mood > 65 ? p.happy : mood > 35 ? p.idle : p.sad;
+    addMessage("turbine", pool[Math.floor(Math.random() * pool.length)]);
+    mood += Math.random() > 0.55 ? 2 + Math.floor(Math.random() * 5) : 0;
+    updateStats();
+    autoTimer = setTimeout(tick, 18000 + Math.random() * 9000);
+  };
+  autoTimer = setTimeout(tick, 15000);
+}
+
+function updateVoiceButtons() {
+  const canSpeak = "speechSynthesis" in window && $("song-lyrics").textContent.trim().length > 0;
+  $("voice-play-btn").disabled = !canSpeak;
+  $("voice-sing-btn").disabled = !canSpeak;
+  $("voice-stop-btn").disabled = !canSpeak || !speechSynthesis.speaking;
+}
+
+function stopSongVoice() {
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  songVoice = null;
+  updateVoiceButtons();
+}
+
+function pickVoice() {
+  const voices = speechSynthesis.getVoices();
+  return voices.find((voice) => voice.lang === "ja-JP")
+    || voices.find((voice) => voice.lang.startsWith("ja"))
+    || voices[0]
+    || null;
+}
+
+function setVoiceBusy(active) {
+  const canSpeak = "speechSynthesis" in window && $("song-lyrics").textContent.trim().length > 0;
+  $("voice-play-btn").disabled = active || !canSpeak;
+  $("voice-sing-btn").disabled = active || !canSpeak;
+  $("voice-stop-btn").disabled = !active;
+}
+
+function buildUtterance(text, options = {}) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "ja-JP";
+  utterance.rate = options.rate ?? 0.92;
+  utterance.pitch = options.pitch ?? 1.05;
+  utterance.volume = 1;
+  utterance.voice = pickVoice();
+  return utterance;
+}
+
+function speakSong() {
+  if (!("speechSynthesis" in window)) {
+    alert("このブラウザは読み上げに対応していません。");
+    return;
+  }
+  const lyrics = $("song-lyrics").textContent.trim();
+  if (!lyrics) return;
+  speechSynthesis.cancel();
+  songVoice = buildUtterance(lyrics, {
+    rate: 0.92,
+    pitch: selectedPersonality === "cool" ? 0.9 : selectedPersonality === "sweet" ? 1.18 : 1.05
+  });
+  songVoice.onstart = updateVoiceButtons;
+  songVoice.onend = updateVoiceButtons;
+  songVoice.onerror = updateVoiceButtons;
+  speechSynthesis.speak(songVoice);
+  updateVoiceButtons();
+}
+
+function singSong() {
+  if (!("speechSynthesis" in window)) {
+    alert("このブラウザは読み上げに対応していません。");
+    return;
+  }
+  const lines = $("song-lyrics").textContent
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (!lines.length) return;
+
+  speechSynthesis.cancel();
+  setVoiceBusy(true);
+
+  const patterns = {
+    tsundere: [1.05, 1.22, 1.0, 1.28],
+    sweet: [1.18, 1.34, 1.24, 1.4],
+    cool: [0.86, 0.98, 0.9, 1.04],
+    hot: [1.0, 1.25, 1.12, 1.36]
+  };
+  const rates = {
+    tsundere: [0.82, 0.76, 0.88, 0.72],
+    sweet: [0.78, 0.72, 0.82, 0.7],
+    cool: [0.9, 0.84, 0.92, 0.86],
+    hot: [0.82, 0.76, 0.86, 0.74]
+  };
+  const pitchPattern = patterns[selectedPersonality] || patterns.hot;
+  const ratePattern = rates[selectedPersonality] || rates.hot;
+  const ending = selectedPersonality === "cool" ? "。" : "ー";
+  const queue = lines.flatMap((line, lineIndex) => {
+    const phrases = line.split(/[\s、,]+/).filter(Boolean);
+    return phrases.length ? phrases.map((phrase) => ({ phrase, lineIndex })) : [{ phrase: line, lineIndex }];
+  });
+
+  queue.forEach((part, index) => {
+    const phrase = index === queue.length - 1 ? `${part.phrase}${ending}` : part.phrase;
+    const utterance = buildUtterance(phrase, {
+      pitch: pitchPattern[(index + part.lineIndex) % pitchPattern.length],
+      rate: ratePattern[(index + part.lineIndex) % ratePattern.length]
+    });
+    utterance.onstart = () => setVoiceBusy(true);
+    utterance.onend = () => {
+      if (index === queue.length - 1) setVoiceBusy(false);
+    };
+    utterance.onerror = () => setVoiceBusy(false);
+    speechSynthesis.speak(utterance);
+  });
+}
+
+async function generateSong() {
+  if (busy) return;
+  stopSongVoice();
+  busy = true;
+  $("song-btn").disabled = true;
+  $("song-section").style.display = "block";
+  $("song-title").textContent = "作曲中...";
+  $("song-lyrics").textContent = "";
+  updateVoiceButtons();
+  try {
+    if (apiKey === "demo") {
+      const genre = mood > 70 ? "全力J-POP" : mood > 40 ? "ミドルテンポ" : "低出力バラード";
+      $("song-title").textContent = `♪ ${turbineName}の風 (${genre})`;
+      $("song-lyrics").textContent = `${turbineName} 回れ 回れ\n小さな風も 抱きしめて\n${Math.round(rpm)}RPMの鼓動で\n今日の空へ 発電する`;
+    } else {
+      const prompt = `${turbineName}という${PERSONALITIES[selectedPersonality].label}タービンAIの短い歌詞を作ってください。現在は${Math.round(rpm)}RPM、${Math.round(mw)}MW、ご機嫌${Math.round(mood)}%。JSONだけで {"title":"曲名","lyrics":"歌詞","genre":"ジャンル"} を返してください。`;
+      const res = await fetch(API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 620, messages: [{ role: "user", content: prompt }] })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error?.message || "API request failed");
+      const parsed = JSON.parse((data.content?.[0]?.text || "{}").replace(/```json|```/g, "").trim());
+      $("song-title").textContent = `♪ ${parsed.title || "タービンの歌"} (${parsed.genre || "unknown"})`;
+      $("song-lyrics").textContent = parsed.lyrics || "";
+    }
+  } catch (error) {
+    $("song-title").textContent = "作曲失敗";
+    $("song-lyrics").textContent = error.message;
+  } finally {
+    busy = false;
+    $("song-btn").disabled = false;
+    updateVoiceButtons();
+  }
+}
+
+let setupAngle = 0;
+function spinSetup() {
+  setupAngle += 2;
+  $("setup-blades").style.transform = `rotate(${setupAngle}deg)`;
+  requestAnimationFrame(spinSetup);
+}
+
+document.querySelectorAll(".personality").forEach((button) => {
+  button.addEventListener("click", () => setPersonality(button.dataset.personality));
+});
+$("setup-btn").addEventListener("click", goSetup);
+$("clear-key-btn").addEventListener("click", clearSavedApiKey);
+$("start-btn").addEventListener("click", startTurbine);
+$("send-btn").addEventListener("click", sendMessage);
+$("song-btn").addEventListener("click", generateSong);
+$("voice-play-btn").addEventListener("click", speakSong);
+$("voice-sing-btn").addEventListener("click", singSong);
+$("voice-stop-btn").addEventListener("click", stopSongVoice);
+$("api-key-input").addEventListener("keydown", (event) => { if (event.key === "Enter") goSetup(); });
+$("name-input").addEventListener("keydown", (event) => { if (event.key === "Enter") startTurbine(); });
+$("chat-input").addEventListener("keydown", (event) => { if (event.key === "Enter") sendMessage(); });
+if ("speechSynthesis" in window) {
+  speechSynthesis.addEventListener("voiceschanged", updateVoiceButtons);
+}
+
+loadSavedApiKey();
+spinSetup();
+</script>
+</body>
+</html>
